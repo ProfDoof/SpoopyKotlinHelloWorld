@@ -18,13 +18,13 @@ import androidx.core.content.ContextCompat.startActivity
 import kotlin.math.absoluteValue
 
 class GameView(context: Context, private val maze: Maze) : View(context) {
-
     //mazeWidth and mazeHeight of the whole maze and mazeWidth of lines which
     //make the walls
     private var mazeWidth: Int = 0
     private var mazeHeight: Int = 0
     private var lineWidth: Int = 0
     private var totalDisplayHeight: Int = 0
+    private var totalDisplayWidth: Int = 0
 
     //size of the maze i.e. number of cells in it
     private val mazeSizeX: Int = maze.mazeWidth
@@ -44,7 +44,8 @@ class GameView(context: Context, private val maze: Maze) : View(context) {
     private val mazeFinishY: Int = maze.finalY
 
     // maze instructions
-    private var mazeInstructionLayout: StaticLayout
+    private var mazeInstructionLayoutPortrait: StaticLayout
+    private var mazeInstructionLayoutLandscape: StaticLayout
 
     private val context: Activity = context as Activity
     private val line: Paint = Paint()
@@ -59,7 +60,7 @@ class GameView(context: Context, private val maze: Maze) : View(context) {
         red.color = resources.getColor(R.color.position)
         redTextPaint.set(red)
         redTextPaint.textSize = 72.toFloat()
-        mazeInstructionLayout = StaticLayout(
+        mazeInstructionLayoutPortrait = StaticLayout(
             resources.getString(R.string.maze_instructions),
             redTextPaint,
             16,
@@ -67,6 +68,7 @@ class GameView(context: Context, private val maze: Maze) : View(context) {
             1.0f,
             0.0f,
             false)
+        mazeInstructionLayoutLandscape = mazeInstructionLayoutPortrait
         background.color = resources.getColor(R.color.game_bg)
 //        isFocusable = true
 //        this.isFocusableInTouchMode = true
@@ -74,30 +76,42 @@ class GameView(context: Context, private val maze: Maze) : View(context) {
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        mazeWidth = if (w < h) w else h
+        mazeWidth = if (w < h) w-32 else h-32
         mazeHeight = mazeWidth         //for now square mazes
         totalDisplayHeight = h
+        totalDisplayWidth = w
         lineWidth = 1          //for now 1 pixel wide walls
         cellWidth = (mazeWidth - mazeSizeX.toFloat() * lineWidth) / mazeSizeX
         totalCellWidth = cellWidth + lineWidth
         cellHeight = (mazeHeight - mazeSizeY.toFloat() * lineWidth) / mazeSizeY
         totalCellHeight = cellHeight + lineWidth
         red.textSize = cellHeight * 0.75f
-        mazeInstructionLayout = StaticLayout(
-                resources.getString(R.string.maze_instructions),
-                redTextPaint,
-                mazeWidth-32,
-                Layout.Alignment.ALIGN_CENTER,
-                1.0f,
-                0.0f,
-                false)
+
+        mazeInstructionLayoutPortrait = StaticLayout(
+            resources.getString(R.string.maze_instructions),
+            redTextPaint,
+            mazeWidth-32,
+            Layout.Alignment.ALIGN_CENTER,
+            1.0f,
+            0.0f,
+            false)
+
+        mazeInstructionLayoutLandscape = StaticLayout(
+            resources.getString(R.string.maze_instructions),
+            redTextPaint,
+            totalDisplayWidth-mazeWidth,
+            Layout.Alignment.ALIGN_CENTER,
+            1.0f,
+            0.0f,
+            false)
+
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
     override fun onDraw(canvas: Canvas) {
         //fill in the background
-        canvas.drawRect(0f, 0f, mazeWidth.toFloat(), totalDisplayHeight.toFloat(), background)
-
+        canvas.drawRect(0f, 0f, totalDisplayWidth.toFloat(), totalDisplayHeight.toFloat(), background)
+        canvas.translate(16.toFloat(),16.toFloat())
         val hLines = maze.horizontalLines
         val vLines = maze.verticalLines
         //iterate over the boolean arrays to draw walls
@@ -138,11 +152,18 @@ class GameView(context: Context, private val maze: Maze) : View(context) {
             red)
 
         //draw a separator
+        canvas.drawLine(0.toFloat(), 0.toFloat(), mazeWidth.toFloat(), 0.toFloat(), line)
         canvas.drawLine(0.toFloat(), mazeHeight.toFloat(), mazeWidth.toFloat(), mazeHeight.toFloat(), line)
-
+        canvas.drawLine(mazeWidth.toFloat(), 0.toFloat(), mazeWidth.toFloat(), mazeHeight.toFloat(), line)
+        canvas.drawLine(0.toFloat(), 0.toFloat(), 0.toFloat(), mazeHeight.toFloat(), line)
+        canvas.translate(-(16.toFloat()), -(16.toFloat()))
         // print instructionstes
+
         canvas.translate(0.toFloat(), (mazeHeight.toFloat()+totalDisplayHeight.toFloat())/2)
-        mazeInstructionLayout.draw(canvas)
+        mazeInstructionLayoutPortrait.draw(canvas)
+        canvas.translate(0.toFloat(), -((mazeHeight.toFloat()+totalDisplayHeight.toFloat())/2))
+        canvas.translate(mazeWidth.toFloat()+32, mazeHeight.toFloat()/2)
+        mazeInstructionLayoutPortrait.draw(canvas)
     }
 
     override fun onKeyDown(keyCode: Int, evt: KeyEvent): Boolean {
