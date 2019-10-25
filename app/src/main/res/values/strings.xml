@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Hello World Kotlin Style</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="button_send">Send</string>
+    <string name="button_maze_game">Start Maze Game</string>
+    <string name="btn_exit">Exit</string>
+    <string name="levelSelect">Select Maze</string>
+    <string name="finished_title">Congrats</string>
+    <string name="finished_text">Level Cleared</string>
+    <string name="finished_button">End Game</string>
+    <string name="maze_instructions">To move, swipe in the direction that you want to move</string>
+</resources>
