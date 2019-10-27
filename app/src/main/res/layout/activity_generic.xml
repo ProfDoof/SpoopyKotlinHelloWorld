@@ -5,9 +5,8 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/genericImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/generic_photo" />
+        android:scaleType="centerCrop" />
 </LinearLayout>
